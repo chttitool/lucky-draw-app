@@ -1,57 +1,60 @@
+// 主程式進入點，等待 DOM 載入完成
+// filepath: c:\Users\terry\Documents\抽獎程式\app.js
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const setupSection = document.getElementById('setup-section');
-    const drawingSection = document.getElementById('drawing-section');
-    const resultsSection = document.getElementById('results-section');
+    // ===== DOM 元素取得 =====
+    const setupSection = document.getElementById('setup-section'); // 設定區塊
+    const drawingSection = document.getElementById('drawing-section'); // 抽獎區塊
+    const resultsSection = document.getElementById('results-section'); // 結果區塊
     
-    const prizesInput = document.getElementById('prizes-input');
-    const participantsInput = document.getElementById('participants-input');
-    const prizesFeedback = document.getElementById('prizes-feedback');
-    const participantsFeedback = document.getElementById('participants-feedback');
+    const prizesInput = document.getElementById('prizes-input'); // 獎項輸入框
+    const participantsInput = document.getElementById('participants-input'); // 參加者輸入框
+    const prizesFeedback = document.getElementById('prizes-feedback'); // 獎項格式錯誤提示
+    const participantsFeedback = document.getElementById('participants-feedback'); // 參加者格式錯誤提示
     
-    const startDrawingBtn = document.getElementById('start-drawing-btn');
-    const drawBtn = document.getElementById('draw-btn');
-    const resetBtn = document.getElementById('reset-btn');
+    const startDrawingBtn = document.getElementById('start-drawing-btn'); // 開始抽獎按鈕
+    const drawBtn = document.getElementById('draw-btn'); // 抽獎按鈕
+    const resetBtn = document.getElementById('reset-btn'); // 重新開始按鈕
     
-    const currentPrize = document.getElementById('current-prize');
-    const remainingCount = document.getElementById('remaining-count');
-    const drawingName = document.getElementById('drawing-name');
-    const winnerConfirmation = document.getElementById('winner-confirmation');
-    const winnerName = document.getElementById('winner-name');
-    const winnerPrize = document.getElementById('winner-prize');
-    const winnerPresentBtn = document.getElementById('winner-present-btn');
-    const winnerAbsentBtn = document.getElementById('winner-absent-btn');
-    const winnersList = document.getElementById('winners-list');
-    const currentPrizeWinners = document.getElementById('current-prize-winners');
-    const currentPrizeAbsent = document.getElementById('current-prize-absent');
+    const currentPrize = document.getElementById('current-prize'); // 當前獎項名稱
+    const remainingCount = document.getElementById('remaining-count'); // 當前獎項剩餘數量
+    const drawingName = document.getElementById('drawing-name'); // 抽獎動畫顯示名字
+    const winnerConfirmation = document.getElementById('winner-confirmation'); // 得獎者確認區塊
+    const winnerName = document.getElementById('winner-name'); // 得獎者名字
+    const winnerPrize = document.getElementById('winner-prize'); // 得獎者獎項
+    const winnerPresentBtn = document.getElementById('winner-present-btn'); // 在場按鈕
+    const winnerAbsentBtn = document.getElementById('winner-absent-btn'); // 不在場按鈕
+    const winnersList = document.getElementById('winners-list'); // 最終中獎名單區
+    const currentPrizeWinners = document.getElementById('current-prize-winners'); // 當前獎項在場得獎者
+    const currentPrizeAbsent = document.getElementById('current-prize-absent'); // 當前獎項不在場得獎者
     
-    // App State
-    let prizes = [];
-    let participants = [];
-    let eligibleParticipants = [];
-    let winners = {};
-    let absentParticipants = [];
-    let currentPrizeIndex = 0;
-    let currentPrizeRemaining = 0;
-    let isDrawing = false;
-    let timer = null;
-    let drawingSpeed = 30; // 抽獎動畫速度，越小越快 (ms)
-    let drawingDuration = 1000; // 抽獎動畫時間 (ms)
-    const originalNames = []; // 儲存原始參加者名單
+    // ===== 狀態變數 =====
+    let prizes = []; // 獎項清單 [{name, quantity, remaining}]
+    let participants = []; // 參加者清單
+    let eligibleParticipants = []; // 當前可抽名單
+    let winners = {}; // 各獎項得獎者 {獎項名稱: [名字,...]}
+    let absentParticipants = []; // 不在場名單
+    let currentPrizeIndex = 0; // 當前獎項索引
+    let currentPrizeRemaining = 0; // 當前獎項剩餘數量
+    let isDrawing = false; // 是否正在抽獎動畫中
+    let timer = null; // 抽獎動畫計時器
+    let drawingSpeed = 30; // 抽獎動畫速度 (ms)
+    let drawingDuration = 1000; // 抽獎動畫總時長 (ms)
+    const originalNames = []; // 原始參加者名單
     let currentPrizeAbsentWinners = []; // 當前獎項不在場的中獎者
     
-    // Event Listeners
-    startDrawingBtn.addEventListener('click', startDrawing);
-    drawBtn.addEventListener('click', draw);
-    resetBtn.addEventListener('click', reset);
-    winnerPresentBtn.addEventListener('click', () => handleWinnerPresence(true));
-    winnerAbsentBtn.addEventListener('click', () => handleWinnerPresence(false));
+    // ===== 事件監聽 =====
+    startDrawingBtn.addEventListener('click', startDrawing); // 開始抽獎
+    drawBtn.addEventListener('click', draw); // 抽獎
+    resetBtn.addEventListener('click', reset); // 重新開始
+    winnerPresentBtn.addEventListener('click', () => handleWinnerPresence(true)); // 得獎者在場
+    winnerAbsentBtn.addEventListener('click', () => handleWinnerPresence(false)); // 得獎者不在場
     
-    // Input validation
+    // 輸入驗證
     prizesInput.addEventListener('input', validatePrizes);
     participantsInput.addEventListener('input', validateParticipants);
     
-    // Functions
+    // ====== 功能函式區 ======
+    // 驗證獎項格式 (每行: 名稱:數量)
     function validatePrizes() {
         const prizeText = prizesInput.value.trim();
         if (!prizeText) {
@@ -94,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
     }
     
+    // 驗證參加者名單 (每行一人，不可重複)
     function validateParticipants() {
         const participantText = participantsInput.value.trim();
         if (!participantText) {
@@ -118,30 +122,33 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
     
+    // 設定獎項輸入為無效狀態
     function setPrizesInvalid(message) {
         prizesInput.classList.add('is-invalid');
         prizesFeedback.textContent = message;
     }
-    
+    // 設定獎項輸入為有效狀態
     function setPrizesValid() {
         prizesInput.classList.remove('is-invalid');
     }
-    
+    // 設定參加者輸入為無效狀態
     function setParticipantsInvalid(message) {
         participantsInput.classList.add('is-invalid');
         participantsFeedback.textContent = message;
     }
-    
+    // 設定參加者輸入為有效狀態
     function setParticipantsValid() {
         participantsInput.classList.remove('is-invalid');
     }
     
+    // ====== 抽獎流程 ======
+    // 開始抽獎，初始化所有狀態
     function startDrawing() {
         if (!validatePrizes() || !validateParticipants()) {
             return;
         }
         
-        // Parse prizes
+        // 解析獎項
         const prizeText = prizesInput.value.trim();
         const prizeLines = prizeText.split('\n').filter(line => line.trim() !== '');
         prizes = [];
@@ -155,28 +162,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Parse participants
+        // 解析參加者
         const participantText = participantsInput.value.trim();
         const participantLines = participantText.split('\n').filter(line => line.trim() !== '');
         participants = participantLines.map(name => name.trim());
         originalNames.length = 0; // 清空原始名單
         originalNames.push(...participants); // 儲存原始名單
         
-        // Reset state
+        // 重設狀態
         eligibleParticipants = [...participants];
         winners = {};
         absentParticipants = [];
         currentPrizeIndex = 0;
         currentPrizeAbsentWinners = [];
         
-        // Clear winner lists
+        // 清空 UI
         currentPrizeWinners.innerHTML = '';
         currentPrizeAbsent.innerHTML = '';
         
-        // Setup first prize
+        // 設定第一個獎項
         setCurrentPrize();
         
-        // Show drawing section with animation
+        // 顯示抽獎區塊動畫
         setupSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
             setupSection.classList.add('d-none');
@@ -185,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
+    // 設定目前抽的獎項
     function setCurrentPrize() {
         const prize = prizes[currentPrizeIndex];
         currentPrize.textContent = prize.name;
@@ -192,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         remainingCount.textContent = currentPrizeRemaining;
     }
     
+    // 執行抽獎動畫與選出得獎者
     function draw() {
         if (isDrawing) return;
         
@@ -204,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         drawBtn.disabled = true;
         winnerConfirmation.classList.add('d-none');
         
-        // Start animation
+        // 開始動畫 (快速輪播名字)
         let count = 0;
         const maxIterations = drawingDuration / drawingSpeed;
         
@@ -221,19 +230,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }, drawingSpeed);
     }
     
+    // 選出得獎者並顯示確認
     function selectWinner() {
-        // Get random winner
+        // 隨機選一位得獎者
         const randomIndex = Math.floor(Math.random() * eligibleParticipants.length);
         const winner = eligibleParticipants[randomIndex];
         
-        // Remove winner from eligible list temporarily (pending confirmation)
+        // 暫時從可抽名單移除 (待確認)
         eligibleParticipants.splice(randomIndex, 1);
         
-        // Display winner
+        // 顯示得獎者
         drawingName.textContent = winner;
         drawingName.classList.add('draw-animation');
         
-        // Show confirmation buttons
+        // 顯示確認按鈕
         setTimeout(() => {
             const prize = prizes[currentPrizeIndex];
             winnerName.textContent = winner;
@@ -244,85 +254,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
+    // 處理得獎者是否在場
     function handleWinnerPresence(isPresent) {
         const winner = winnerName.textContent;
         const prize = prizes[currentPrizeIndex];
         
         if (isPresent) {
-            // Add to winners list
+            // 加入在場得獎者清單
             if (!winners[prize.name]) {
                 winners[prize.name] = [];
             }
             winners[prize.name].push(winner);
             
-            // Decrement remaining count
+            // 減少剩餘數量
             prize.remaining--;
             currentPrizeRemaining = prize.remaining;
             remainingCount.textContent = currentPrizeRemaining;
             
-            // Update UI to show winner is present in the current prize section
+            // UI 顯示在場得獎者
             const winnerItem = document.createElement('div');
             winnerItem.classList.add('winner-item', 'animate__animated', 'animate__fadeIn');
             winnerItem.innerHTML = `<strong>${winner}</strong>`;
             currentPrizeWinners.appendChild(winnerItem);
         } else {
-            // Add to absent list
+            // 加入不在場清單
             absentParticipants.push(winner);
-            
-            // Add to current prize absent winners list
+            // 加入當前獎項不在場得獎者
             currentPrizeAbsentWinners.push(winner);
-            
-            // Update UI to show winner is absent in the current prize section
+            // UI 顯示不在場得獎者
             const absentItem = document.createElement('div');
             absentItem.classList.add('prize-item', 'text-muted', 'animate__animated', 'animate__fadeIn');
             absentItem.innerHTML = `<strong>${winner}</strong>`;
             currentPrizeAbsent.appendChild(absentItem);
-            
-            // Remove from all participants for future drawings
+            // 從參加者移除，未來不再抽到
             const index = participants.indexOf(winner);
             if (index !== -1) {
                 participants.splice(index, 1);
             }
         }
         
-        // Reset UI for next draw
+        // 重設 UI，準備下次抽獎
         winnerConfirmation.classList.add('d-none');
         drawBtn.disabled = false;
         drawingName.classList.remove('draw-animation');
         drawingName.textContent = '點擊抽獎按鈕';
         
-        // Check if we need to move to the next prize or finish
+        // 檢查是否換獎項或結束
         checkDrawingProgress();
     }
     
+    // 檢查是否要換獎項或結束抽獎
     function checkDrawingProgress() {
         const currentPrize = prizes[currentPrizeIndex];
         
-        // If current prize is done
+        // 當前獎項抽完
         if (currentPrize.remaining <= 0) {
             currentPrizeIndex++;
-            
-            // Check if all prizes are done
+            // 所有獎項抽完
             if (currentPrizeIndex >= prizes.length) {
                 finishDrawing();
                 return;
             }
-            
-            // Move to next prize
+            // 換下一個獎項
             setCurrentPrize();
-            
-            // Reset eligible participants for the next prize
+            // 重設可抽名單
             eligibleParticipants = [...participants];
-            
-            // Clear current prize winners and absent lists for the new prize
+            // 清空 UI
             currentPrizeWinners.innerHTML = '';
             currentPrizeAbsent.innerHTML = '';
             currentPrizeAbsentWinners = [];
         }
     }
     
+    // 結束抽獎，顯示最終結果
     function finishDrawing() {
-        // Display final results
+        // 結果區塊動畫
         drawingSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
             drawingSection.classList.add('d-none');
@@ -332,19 +338,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
+    // 顯示最終中獎名單與不在場名單
     function displayFinalResults() {
         winnersList.innerHTML = '';
-        
-        // Display winners by prize category
+        // 依獎項顯示得獎者
         prizes.forEach(prize => {
             const prizeWinners = winners[prize.name] || [];
-            
             if (prizeWinners.length > 0) {
                 const prizeHeader = document.createElement('h4');
                 prizeHeader.className = 'mt-3 mb-2';
                 prizeHeader.textContent = prize.name;
                 winnersList.appendChild(prizeHeader);
-                
                 prizeWinners.forEach(winner => {
                     const winnerItem = document.createElement('div');
                     winnerItem.className = 'winner-item';
@@ -353,14 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-        
-        // Display absent participants if any
+        // 顯示不在場名單
         if (absentParticipants.length > 0) {
             const absentHeader = document.createElement('h4');
             absentHeader.className = 'mt-4 mb-2 text-muted';
             absentHeader.textContent = '未在場參加者';
             winnersList.appendChild(absentHeader);
-            
             absentParticipants.forEach(absent => {
                 const absentItem = document.createElement('div');
                 absentItem.className = 'prize-item text-muted';
@@ -370,12 +372,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // 重新開始，重設所有狀態與 UI
     function reset() {
-        // Clear inputs
+        // 清空輸入
         prizesInput.value = '';
         participantsInput.value = '';
-        
-        // Reset state
+        // 重設狀態
         prizes = [];
         participants = [];
         eligibleParticipants = [];
@@ -383,16 +385,14 @@ document.addEventListener('DOMContentLoaded', function() {
         absentParticipants = [];
         currentPrizeIndex = 0;
         currentPrizeAbsentWinners = [];
-        
-        // Reset UI
+        // 重設 UI
         winnersList.innerHTML = '';
         currentPrizeWinners.innerHTML = '';
         currentPrizeAbsent.innerHTML = '';
         drawingName.textContent = '準備開始...';
         setPrizesValid();
         setParticipantsValid();
-        
-        // Show setup section
+        // 顯示設定區塊動畫
         resultsSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
             resultsSection.classList.add('d-none');
