@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽獎程式</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Animation library -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4 animate__animated animate__fadeIn">抽獎程式</h1>
+        
+        <div id="setup-section" class="card shadow-sm mb-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">設定抽獎</h3>
+            </div>
+            <div class="card-body">
+                <!-- 獎項設定 -->
+                <div class="mb-4">
+                    <h4>1. 獎項設定</h4>
+                    <div class="alert alert-info">
+                        <small>請輸入獎項名稱與數量，格式：獎項名稱:數量，每行一個獎項</small>
+                    </div>
+                    <textarea id="prizes-input" class="form-control" rows="5" placeholder="例如：
+頭獎:1
+二獎:2
+三獎:3"></textarea>
+                    <div id="prizes-feedback" class="invalid-feedback"></div>
+                </div>
+
+                <!-- 參加者名單 -->
+                <div class="mb-4">
+                    <h4>2. 參加者名單</h4>
+                    <div class="alert alert-info">
+                        <small>請輸入參加抽獎的名單，每行一位參加者</small>
+                    </div>
+                    <textarea id="participants-input" class="form-control" rows="10" placeholder="例如：
+張三
+李四
+王五"></textarea>
+                    <div id="participants-feedback" class="invalid-feedback"></div>
+                </div>
+
+                <button id="start-drawing-btn" class="btn btn-primary float-end">開始抽獎</button>
+            </div>
+        </div>
+
+        <!-- 抽獎區 -->
+        <div id="drawing-section" class="card shadow-sm mb-4 d-none animate__animated">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">抽獎進行中</h3>
+            </div>
+            <div class="card-body text-center">
+                <h4 id="current-prize-label" class="mb-4">獎項：<span id="current-prize"></span> (剩餘: <span id="remaining-count"></span>)</h4>
+                
+                <div id="drawing-animation" class="drawing-box mb-4">
+                    <div id="drawing-name" class="display-4 drawing-name">準備開始...</div>
+                </div>
+                
+                <button id="draw-btn" class="btn btn-success btn-lg mb-3">抽獎</button>
+                
+                <div id="winner-confirmation" class="mt-4 d-none">
+                    <div class="alert alert-success winner-alert">
+                        <h4 class="mb-2">恭喜 <span id="winner-name" class="fw-bold"></span> 抽中 <span id="winner-prize"></span>!</h4>
+                        <p>請確認得獎者是否在場？</p>
+                        <div class="d-flex justify-content-center">
+                            <button id="winner-present-btn" class="btn btn-outline-success me-2">在場</button>
+                            <button id="winner-absent-btn" class="btn btn-outline-danger">不在場</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 當前獎項的得獎名單 -->
+                <div class="mt-4 row">
+                    <!-- 在場得獎者 -->
+                    <div class="col-md-6">
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-check-circle me-2"></i>在場得獎者
+                            </div>
+                            <div class="card-body">
+                                <div id="current-prize-winners" class="text-start"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 不在場得獎者 -->
+                    <div class="col-md-6">
+                        <div class="card border-danger mb-3">
+                            <div class="card-header bg-danger text-white">
+                                <i class="fas fa-times-circle me-2"></i>不在場得獎者
+                            </div>
+                            <div class="card-body">
+                                <div id="current-prize-absent" class="text-start"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中獎名單區 -->
+        <div id="results-section" class="card shadow-sm d-none animate__animated">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0">中獎名單</h3>
+            </div>
+            <div class="card-body">
+                <div id="winners-list"></div>
+                <button id="reset-btn" class="btn btn-primary mt-3">重新開始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>
