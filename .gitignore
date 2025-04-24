@@ -1,0 +1,11 @@
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# VSCode 設定
+.vscode/
+
+# 其他常見暫存檔
+*.log
+
+# 不包含 node_modules，因為本專案無需 npm 套件
