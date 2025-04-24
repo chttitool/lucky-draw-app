@@ -1,6 +1,6 @@
 # 抽獎程式 (Lucky Draw App)
 
-這是一個使用 HTML、CSS（Bootstrap）、JavaScript 製作的單頁式抽獎應用程式，支援 Edge 及 Chrome 瀏覽器。
+這是一個使用 HTML、Tailwind CSS、JavaScript 製作的單頁式抽獎應用程式，支援 Edge 及 Chrome 瀏覽器。
 
 ## 功能特色
 - 支援獎項名稱與數量輸入格式檢查
@@ -35,7 +35,7 @@
 
 ```
 +-------------------+
-|   index.html      |  <--- 主頁面，載入所有 UI 元素
+|   index.html      |  <--- 主頁面，載入所有 UI 元素、樣式與腳本
 +-------------------+
            |
            v
@@ -82,4 +82,4 @@
 - `app.js`：主要功能腳本
 
 ## 授權
-MIT License
+© 2025 Terry Chuang
