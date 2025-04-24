@@ -124,21 +124,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 設定獎項輸入為無效狀態
     function setPrizesInvalid(message) {
-        prizesInput.classList.add('is-invalid');
+        prizesInput.classList.add('border-red-500', 'focus:ring-red-400');
         prizesFeedback.textContent = message;
     }
     // 設定獎項輸入為有效狀態
     function setPrizesValid() {
-        prizesInput.classList.remove('is-invalid');
+        prizesInput.classList.remove('border-red-500', 'focus:ring-red-400');
+        prizesFeedback.textContent = '';
     }
     // 設定參加者輸入為無效狀態
     function setParticipantsInvalid(message) {
-        participantsInput.classList.add('is-invalid');
+        participantsInput.classList.add('border-red-500', 'focus:ring-red-400');
         participantsFeedback.textContent = message;
     }
     // 設定參加者輸入為有效狀態
     function setParticipantsValid() {
-        participantsInput.classList.remove('is-invalid');
+        participantsInput.classList.remove('border-red-500', 'focus:ring-red-400');
+        participantsFeedback.textContent = '';
     }
     
     // ====== 抽獎流程 ======
@@ -179,6 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // 清空 UI
         currentPrizeWinners.innerHTML = '';
         currentPrizeAbsent.innerHTML = '';
+        winnerConfirmation.classList.add('d-none'); // 每次進入抽獎畫面時預設隱藏確認視窗
+        winnerConfirmation.classList.add('hidden'); // 強制 Tailwind 隱藏
         
         // 設定第一個獎項
         setCurrentPrize();
@@ -186,8 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // 顯示抽獎區塊動畫
         setupSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
-            setupSection.classList.add('d-none');
-            drawingSection.classList.remove('d-none');
+            setupSection.classList.add('hidden');
+            drawingSection.classList.remove('hidden');
             drawingSection.classList.add('animate__fadeInUp');
         }, 500);
     }
@@ -212,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         isDrawing = true;
         drawBtn.disabled = true;
         winnerConfirmation.classList.add('d-none');
+        winnerConfirmation.classList.add('hidden'); // 抽獎前再次強制隱藏
         
         // 開始動畫 (快速輪播名字)
         let count = 0;
@@ -249,8 +254,11 @@ document.addEventListener('DOMContentLoaded', function() {
             winnerName.textContent = winner;
             winnerPrize.textContent = prize.name;
             winnerConfirmation.classList.remove('d-none');
+            winnerConfirmation.classList.remove('hidden'); // 只在這裡顯示
             winnerConfirmation.classList.add('winner-appear');
             isDrawing = false;
+            winnerPresentBtn.disabled = false;
+            winnerAbsentBtn.disabled = false;
         }, 500);
     }
     
@@ -273,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // UI 顯示在場得獎者
             const winnerItem = document.createElement('div');
-            winnerItem.classList.add('winner-item', 'animate__animated', 'animate__fadeIn');
+            winnerItem.classList.add('winner-item', 'animate__animated', 'animate__fadeIn', 'bg-green-50', 'rounded', 'px-3', 'py-2', 'mb-2', 'text-green-800', 'font-semibold');
             winnerItem.innerHTML = `<strong>${winner}</strong>`;
             currentPrizeWinners.appendChild(winnerItem);
         } else {
@@ -283,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPrizeAbsentWinners.push(winner);
             // UI 顯示不在場得獎者
             const absentItem = document.createElement('div');
-            absentItem.classList.add('prize-item', 'text-muted', 'animate__animated', 'animate__fadeIn');
+            absentItem.classList.add('prize-item', 'animate__animated', 'animate__fadeIn', 'bg-red-50', 'rounded', 'px-3', 'py-2', 'mb-2', 'text-red-800', 'font-semibold');
             absentItem.innerHTML = `<strong>${winner}</strong>`;
             currentPrizeAbsent.appendChild(absentItem);
             // 從參加者移除，未來不再抽到
@@ -294,7 +302,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // 重設 UI，準備下次抽獎
-        winnerConfirmation.classList.add('d-none');
+        winnerConfirmation.classList.add('d-none'); // 按下後立即關閉確認視窗
+        winnerConfirmation.classList.add('hidden'); // 強制 Tailwind 隱藏
+        winnerPresentBtn.disabled = true;
+        winnerAbsentBtn.disabled = true;
         drawBtn.disabled = false;
         drawingName.classList.remove('draw-animation');
         drawingName.textContent = '點擊抽獎按鈕';
@@ -331,9 +342,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 結果區塊動畫
         drawingSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
-            drawingSection.classList.add('d-none');
+            drawingSection.classList.add('hidden');
             displayFinalResults();
-            resultsSection.classList.remove('d-none');
+            resultsSection.classList.remove('hidden');
             resultsSection.classList.add('animate__fadeInUp');
         }, 500);
     }
@@ -346,12 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const prizeWinners = winners[prize.name] || [];
             if (prizeWinners.length > 0) {
                 const prizeHeader = document.createElement('h4');
-                prizeHeader.className = 'mt-3 mb-2';
+                prizeHeader.className = 'mt-3 mb-2 font-bold text-lg text-blue-700';
                 prizeHeader.textContent = prize.name;
                 winnersList.appendChild(prizeHeader);
                 prizeWinners.forEach(winner => {
                     const winnerItem = document.createElement('div');
-                    winnerItem.className = 'winner-item';
+                    winnerItem.className = 'winner-item bg-green-50 rounded px-3 py-2 mb-2 text-green-800 font-semibold';
                     winnerItem.innerHTML = `<strong>${winner}</strong>`;
                     winnersList.appendChild(winnerItem);
                 });
@@ -360,12 +371,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // 顯示不在場名單
         if (absentParticipants.length > 0) {
             const absentHeader = document.createElement('h4');
-            absentHeader.className = 'mt-4 mb-2 text-muted';
+            absentHeader.className = 'mt-4 mb-2 text-red-600 font-bold';
             absentHeader.textContent = '未在場參加者';
             winnersList.appendChild(absentHeader);
             absentParticipants.forEach(absent => {
                 const absentItem = document.createElement('div');
-                absentItem.className = 'prize-item text-muted';
+                absentItem.className = 'prize-item bg-red-50 rounded px-3 py-2 mb-2 text-red-800 font-semibold';
                 absentItem.innerHTML = `<strong>${absent}</strong>`;
                 winnersList.appendChild(absentItem);
             });
@@ -395,8 +406,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // 顯示設定區塊動畫
         resultsSection.classList.add('animate__fadeOutUp');
         setTimeout(() => {
-            resultsSection.classList.add('d-none');
-            setupSection.classList.remove('d-none', 'animate__fadeOutUp');
+            resultsSection.classList.add('hidden');
+            setupSection.classList.remove('hidden', 'animate__fadeOutUp');
             setupSection.classList.add('animate__fadeInUp');
         }, 500);
     }
